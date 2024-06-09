@@ -6,6 +6,10 @@ name = "pypi"
 [packages]
 flask = "*"
 flask-cors = "*"
+deepface = "*"
+tf-keras = "*"
+matplotlib = "3.9.0"
+opencv-python = "*"
 
 [dev-packages]
 
