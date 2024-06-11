@@ -9,3 +9,4 @@ def analyze_face(image):
     result = DeepFace.analyze(image, actions = ['emotion'])
     sorted_emotions = sorted(result[0]["emotion"].items(),key=lambda x: x[1], reverse=True)
     return dict(sorted_emotions[0])
+

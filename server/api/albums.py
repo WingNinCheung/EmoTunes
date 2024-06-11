@@ -1,11 +1,12 @@
 from api.auth import get_spotify_access_token
-from flask import Blueprint
+from flask import Blueprint, request
 import requests
 album_routes = Blueprint("album_routes", __name__)
 
 # Get recommended albums based on the specified emotion.
 @album_routes.route('/', methods=['GET'])
-def get_albums(emotion):
+def get_albums():
+    emotion = request.json["emotion"]
     access_token = get_spotify_access_token()
     emotion_ranges = {
         "happy": {"valence": (0.7, 1.0), "energy": (0.6, 1.0), "danceability": (0.5, 1.0)},
