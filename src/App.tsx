@@ -1,11 +1,29 @@
+import { Outlet, RouterProvider, createBrowserRouter } from 'react-router-dom'
 import './App.css'
+import HomePage from './components/Home/HomePage'
 
-function App () {
+const Layout: React.FC = () => {
   return (
     <>
-      <h1>EmoTunes</h1>
+      <Outlet />
     </>
   )
+}
+
+const router = createBrowserRouter([
+  {
+    element: <Layout />,
+    children: [
+      {
+        path: '/',
+        element: <HomePage />
+      }
+    ]
+  }
+])
+
+function App () {
+  return <RouterProvider router={router} />
 }
 
 export default App
