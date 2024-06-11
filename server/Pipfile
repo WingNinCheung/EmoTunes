@@ -10,6 +10,8 @@ deepface = "*"
 tf-keras = "*"
 matplotlib = "3.9.0"
 opencv-python = "*"
+spotipy = "*"
+python-dotenv = "*"
 
 [dev-packages]
 
