@@ -9,6 +9,7 @@ const CaptureImage: React.FC = () => {
 
   useEffect(() => {
     const getDevices = async () => {
+      await navigator.mediaDevices.getUserMedia({ audio: true, video: true })
       const devices = await navigator.mediaDevices.enumerateDevices()
       const videoDevices = devices.filter(
         device => device.kind === 'videoinput'
@@ -43,7 +44,8 @@ const CaptureImage: React.FC = () => {
       console.log('Image uploaded successfully')
       console.log(await response.json())
     } else {
-      console.log('Failed to upload image')
+      const errorData = await response.json()
+      console.error('Failed to upload image:', errorData.error)
     }
   }
 
@@ -52,8 +54,18 @@ const CaptureImage: React.FC = () => {
       {imageSrc ? (
         <div>
           <img src={imageSrc} alt='Your Picture' />
-          <button onClick={handleSave}>Generate Music!</button>
-          <button onClick={() => setImageSrc('')}>Re-Capture</button>
+          <button
+            className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
+            onClick={handleSave}
+          >
+            Generate Music!
+          </button>
+          <button
+            className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
+            onClick={() => setImageSrc('')}
+          >
+            Re-Capture
+          </button>
         </div>
       ) : (
         <div>
@@ -79,7 +91,12 @@ const CaptureImage: React.FC = () => {
               height={240}
             />
           )}
-          <button onClick={capture}>Take a picture</button>
+          <button
+            className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
+            onClick={capture}
+          >
+            Take a picture
+          </button>
         </div>
       )}
     </div>

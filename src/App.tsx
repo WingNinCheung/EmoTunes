@@ -1,5 +1,4 @@
 import { Outlet, RouterProvider, createBrowserRouter } from 'react-router-dom'
-import './App.css'
 import HomePage from './components/Home/HomePage'
 
 const Layout: React.FC = () => {
@@ -23,7 +22,11 @@ const router = createBrowserRouter([
 ])
 
 function App () {
-  return <RouterProvider router={router} />
+  return (
+    <>
+      <RouterProvider router={router} />
+    </>
+  )
 }
 
 export default App
