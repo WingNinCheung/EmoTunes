@@ -7,6 +7,6 @@ app = Flask(__name__)
 
 app.register_blueprint(image_routes, url_prefix="/api/images")
 app.register_blueprint(auth_routes, url_prefix="/api/auth")
-app.register_blueprint(album_routes, url_prefix="/api/songs")
+app.register_blueprint(album_routes, url_prefix="/api/albums")
 
 CORS(app)
