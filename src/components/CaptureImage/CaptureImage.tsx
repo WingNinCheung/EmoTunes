@@ -6,6 +6,7 @@ const CaptureImage: React.FC = () => {
   const [imageSrc, setImageSrc] = useState<string | null>()
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([])
   const [selectedDeviceId, setSelectedDeviceId] = useState<string | null>()
+  const [errors, setErrors] = useState<string>('')
 
   useEffect(() => {
     const getDevices = async () => {
@@ -23,6 +24,7 @@ const CaptureImage: React.FC = () => {
   }, [])
 
   const capture = () => {
+    setErrors('')
     if (webcamRef.current) {
       const imageSrc = webcamRef.current.getScreenshot()
       setImageSrc(imageSrc)
@@ -31,7 +33,7 @@ const CaptureImage: React.FC = () => {
 
   const handleSave = async () => {
     if (!imageSrc) return
-
+    setErrors('')
     const response = await fetch('api/images', {
       method: 'POST',
       headers: {
@@ -39,24 +41,28 @@ const CaptureImage: React.FC = () => {
       },
       body: JSON.stringify({ image: imageSrc })
     })
-
     if (response.ok) {
       console.log('Image uploaded successfully')
       console.log(await response.json())
     } else {
-      const errorData = await response.json()
-      console.error('Failed to upload image:', errorData.error)
+      setErrors(
+        "Oops! We couldn't find your face. Try adjusting the lighting or moving closer to the camera"
+      )
     }
   }
+  console.log(errors)
 
   return (
     <div>
       {imageSrc ? (
         <div>
           <img src={imageSrc} alt='Your Picture' />
+          <div>{errors}</div>
           <button
-            className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
+            className='bg-blue-500 hover:bg-blue-700 disabled:opacity-50
+ text-white font-bold py-2 px-4 rounded'
             onClick={handleSave}
+            disabled={errors.length > 0}
           >
             Generate Music!
           </button>
