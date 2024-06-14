@@ -1,3 +1,20 @@
+export interface Emotion {
+  [key: string]: number
+}
+
+export interface CaptureImageProps {
+  closeModal: () => void
+  setAlbums: (albums: Album[]) => void
+  setEmotions: (emotions: Emotion) => void
+  emotions: Emotion
+  setIsLoading: (isLoading: boolean) => void
+}
+
+export interface EmotionProps {
+  setEmotions?: (emotions: Emotion) => void
+  emotions?: Emotion
+}
+
 export interface Album {
   album: {
     album_type: string
@@ -29,8 +46,4 @@ export interface Album {
     type: string
     uri: string
   }
-}
-
-export interface Emotion {
-  [key: string]: number
 }
