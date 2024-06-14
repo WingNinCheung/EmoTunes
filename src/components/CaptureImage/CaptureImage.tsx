@@ -40,7 +40,7 @@ const CaptureImage: React.FC<CaptureImageProps> = ({
   }
 
   // get recommended albums based on the dominant emotion
-  const getAlbums = async (highestEmotion: string) => {
+   const getAlbums = async (highestEmotion: string) => {
     const data = await fetch(`api/albums/${highestEmotion}`)
     if (data.ok) {
       const response = await data.json()
@@ -66,7 +66,6 @@ const CaptureImage: React.FC<CaptureImageProps> = ({
   const handleSave = async () => {
     if (!imageSrc) return
     setErrors('')
-    setIsLoading(true)
     // Send a POST request to the 'api/images' endpoint with the captured image
     const response = await fetch('api/images', {
       method: 'POST',
@@ -77,6 +76,7 @@ const CaptureImage: React.FC<CaptureImageProps> = ({
     })
     if (response.ok) {
       const data = await response.json()
+      setIsLoading(true)
       setEmotions(data)
       findDominantEmotion(data)
       closeModal()

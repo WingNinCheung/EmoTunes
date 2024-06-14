@@ -31,11 +31,11 @@ def get_albums(emotion):
         "min_danceability": emotion_ranges[emotion]["danceability"][0],
         "max_danceability": emotion_ranges[emotion]["danceability"][1],
         'seed_genres': 'pop',
-        'limit': 10
+        'limit': 100
     }
 
     response = requests.get('https://api.spotify.com/v1/recommendations', headers=headers, params=params)
     tracks = response.json().get('tracks', [])
-    selected_tracks = random.sample(tracks, 4)
+    selected_tracks = random.sample(tracks, 8)
     albums = [{"album" : track["album"]} for track in selected_tracks]
     return albums
