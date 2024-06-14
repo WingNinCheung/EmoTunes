@@ -1,21 +1,19 @@
 import Webcam from 'react-webcam'
 import React, { useRef, useState, useEffect } from 'react'
-import Album from '../Album/Album'
-import { BeatLoader } from 'react-spinners'
-import { Emotion, Album as AlbumTypes } from '../types'
+import { Emotion } from '../types'
+import { CaptureImageProps } from '../types'
 
-const CaptureImage: React.FC = () => {
+const CaptureImage: React.FC<CaptureImageProps> = ({
+  closeModal,
+  setAlbums,
+  setEmotions,
+  setIsLoading
+}) => {
   const webcamRef = useRef<Webcam>(null)
   const [imageSrc, setImageSrc] = useState<string | null>()
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([])
   const [selectedDeviceId, setSelectedDeviceId] = useState<string | null>()
   const [errors, setErrors] = useState<string>('')
-  const [emotions, setEmotions] = useState<Emotion | null>()
-  const [dominantEmotion, setDominantEmotion] = useState<string>('')
-  const [albums, setAlbums] = useState<AlbumTypes[]>([])
-
-  const emotionEntries = emotions ? Object.entries(emotions) : []
-  if (emotionEntries.length) emotionEntries.sort((a, b) => b[1] - a[1])
 
   useEffect(() => {
     const getDevices = async () => {
@@ -40,11 +38,13 @@ const CaptureImage: React.FC = () => {
       setImageSrc(imageSrc)
     }
   }
+
   // get recommended albums based on the dominant emotion
-  const getAlbums = async (highestEmotion: string) => {
+   const getAlbums = async (highestEmotion: string) => {
     const data = await fetch(`api/albums/${highestEmotion}`)
     if (data.ok) {
       const response = await data.json()
+      setIsLoading(true)
       setAlbums(response)
     }
   }
@@ -59,16 +59,13 @@ const CaptureImage: React.FC = () => {
         highestEmotion = emo
       }
     }
-    setDominantEmotion(highestEmotion)
     await getAlbums(highestEmotion)
     return
   }
 
-
   const handleSave = async () => {
     if (!imageSrc) return
     setErrors('')
-
     // Send a POST request to the 'api/images' endpoint with the captured image
     const response = await fetch('api/images', {
       method: 'POST',
@@ -78,10 +75,11 @@ const CaptureImage: React.FC = () => {
       body: JSON.stringify({ image: imageSrc })
     })
     if (response.ok) {
-      console.log('Image uploaded successfully')
       const data = await response.json()
+      setIsLoading(true)
       setEmotions(data)
       findDominantEmotion(data)
+      closeModal()
     } else {
       setErrors(
         "Oops! We couldn't find your face. Try adjusting the lighting or moving closer to the camera"
@@ -90,33 +88,45 @@ const CaptureImage: React.FC = () => {
   }
 
   return (
-    <div>
+    <div className='p-4 space-y-4'>
       {imageSrc ? (
-        <div>
-          <img src={imageSrc} alt='Your Picture' />
-          <div>{errors}</div>
-          <button
-            className='bg-blue-500 hover:bg-blue-700 disabled:opacity-50 text-white font-bold py-2 px-4 rounded'
-            onClick={handleSave}
-            disabled={errors.length > 0}
-          >
-            Generate Music!
-          </button>
-          <button
-            className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
-            onClick={() => {
-              setImageSrc('')
-              setEmotions(null)
-            }}
-          >
-            Re-Capture
-          </button>
+        <div className='space-y-4'>
+          <img
+            src={imageSrc}
+            alt='Your Picture'
+            className='mx-auto border-2 border-gray-200 rounded'
+          />
+          {errors && <div className='text-red-500 text-center'>{errors}</div>}
+          <div className='flex justify-center space-x-4'>
+            <button
+              className='bg-blue-500 hover:bg-blue-700 disabled:opacity-50 text-white font-bold py-2 px-4 rounded'
+              onClick={handleSave}
+              disabled={errors.length > 0}
+            >
+              Generate Music
+            </button>
+            <button
+              className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
+              onClick={() => {
+                setImageSrc('')
+                setEmotions({})
+              }}
+            >
+              Re-Capture
+            </button>
+          </div>
         </div>
       ) : (
-        <div>
-          <label htmlFor='cameraSelect'>Choose your camera: </label>
+        <div className='space-y-4'>
+          <label
+            htmlFor='cameraSelect'
+            className='block text-center font-semibold text-gray-700'
+          >
+            Choose your camera:{' '}
+          </label>
           <select
             id='cameraSelect'
+            className='block w-full border border-gray-300 rounded-md py-2 px-3 text-base leading-6'
             onChange={e => setSelectedDeviceId(e.target.value)}
             value={selectedDeviceId || ''}
           >
@@ -132,30 +142,29 @@ const CaptureImage: React.FC = () => {
               ref={webcamRef}
               screenshotFormat='image/jpeg'
               videoConstraints={{ deviceId: selectedDeviceId }}
-              width={320}
+              width={370}
               height={240}
+              className='mx-auto border-2 border-gray-200 rounded'
             />
           )}
-          <button
-            className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
-            onClick={capture}
-          >
-            Take a picture
-          </button>
+          <div className='flex justify-center'>
+            <button
+              className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
+              onClick={capture}
+            >
+              Take a picture
+            </button>
+          </div>
         </div>
       )}
-      {dominantEmotion && emotionEntries.length > 0 && (
-        <div>
-          It looks like you are feeling {emotionEntries[0][1].toFixed()}%{' '}
-          {emotionEntries[0][0]} and {emotionEntries[1][1].toFixed()}%{' '}
-          {emotionEntries[1][0]}
-          {albums.length > 0 ? (
-            <Album albums={albums} />
-          ) : (
-            <BeatLoader color='#36d7b7' />
-          )}
-        </div>
-      )}
+      <div className='flex justify-center'>
+        <button
+          className='mt-4 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded'
+          onClick={closeModal}
+        >
+          Close
+        </button>
+      </div>
     </div>
   )
 }
