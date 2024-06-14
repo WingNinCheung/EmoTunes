@@ -13,6 +13,7 @@ const CaptureImage: React.FC = () => {
   const [emotions, setEmotions] = useState<Emotion | null>()
   const [dominantEmotion, setDominantEmotion] = useState<string>('')
   const [albums, setAlbums] = useState<AlbumTypes[]>([])
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const emotionEntries = emotions ? Object.entries(emotions) : []
   if (emotionEntries.length) emotionEntries.sort((a, b) => b[1] - a[1])
@@ -64,10 +65,10 @@ const CaptureImage: React.FC = () => {
     return
   }
 
-
   const handleSave = async () => {
     if (!imageSrc) return
     setErrors('')
+    setIsLoading(true)
 
     // Send a POST request to the 'api/images' endpoint with the captured image
     const response = await fetch('api/images', {
@@ -78,11 +79,11 @@ const CaptureImage: React.FC = () => {
       body: JSON.stringify({ image: imageSrc })
     })
     if (response.ok) {
-      console.log('Image uploaded successfully')
       const data = await response.json()
       setEmotions(data)
       findDominantEmotion(data)
     } else {
+      setIsLoading(false)
       setErrors(
         "Oops! We couldn't find your face. Try adjusting the lighting or moving closer to the camera"
       )
@@ -144,7 +145,7 @@ const CaptureImage: React.FC = () => {
           </button>
         </div>
       )}
-      {dominantEmotion && emotionEntries.length > 0 && (
+      {dominantEmotion && emotionEntries.length > 0 ? (
         <div>
           It looks like you are feeling {emotionEntries[0][1].toFixed()}%{' '}
           {emotionEntries[0][0]} and {emotionEntries[1][1].toFixed()}%{' '}
@@ -152,10 +153,14 @@ const CaptureImage: React.FC = () => {
           {albums.length > 0 ? (
             <Album albums={albums} />
           ) : (
-            <BeatLoader color='#36d7b7' />
+            <>
+              <BeatLoader color='#36d7b7' />
+            </>
           )}
         </div>
-      )}
+      ) : isLoading ? (
+        <BeatLoader color='#36d7b7' />
+      ) : null}
     </div>
   )
 }
