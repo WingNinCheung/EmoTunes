@@ -11,7 +11,7 @@ const Album: React.FC<{
   if (emotionArray.length) emotionArray.sort((a, b) => b[1] - a[1])
 
   const hanleClick = async () => {
-    const res = await fetch(`api/albums/${emotionArray[0]}`)
+    const res = await fetch(`api/albums/${emotionArray[0][0]}`)
     if (res.ok) {
       const data = await res.json()
       setAlbums(data)
