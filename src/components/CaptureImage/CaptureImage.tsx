@@ -2,6 +2,7 @@ import Webcam from 'react-webcam'
 import React, { useRef, useState, useEffect } from 'react'
 import { Emotion } from '../types'
 import { CaptureImageProps } from '../types'
+import { SyncLoader } from 'react-spinners'
 
 const CaptureImage: React.FC<CaptureImageProps> = ({
   closeModal,
@@ -14,6 +15,7 @@ const CaptureImage: React.FC<CaptureImageProps> = ({
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([])
   const [selectedDeviceId, setSelectedDeviceId] = useState<string | null>()
   const [errors, setErrors] = useState<string>('')
+  const [isGenerating, setIsGenerating] = useState<boolean>(false)
 
   useEffect(() => {
     const getDevices = async () => {
@@ -40,7 +42,7 @@ const CaptureImage: React.FC<CaptureImageProps> = ({
   }
 
   // get recommended albums based on the dominant emotion
-   const getAlbums = async (highestEmotion: string) => {
+  const getAlbums = async (highestEmotion: string) => {
     const data = await fetch(`api/albums/${highestEmotion}`)
     if (data.ok) {
       const response = await data.json()
@@ -66,6 +68,7 @@ const CaptureImage: React.FC<CaptureImageProps> = ({
   const handleSave = async () => {
     if (!imageSrc) return
     setErrors('')
+    setIsGenerating(true)
     // Send a POST request to the 'api/images' endpoint with the captured image
     const response = await fetch('api/images', {
       method: 'POST',
@@ -84,6 +87,7 @@ const CaptureImage: React.FC<CaptureImageProps> = ({
       setErrors(
         "Oops! We couldn't find your face. Try adjusting the lighting or moving closer to the camera"
       )
+      setIsGenerating(false)
     }
   }
 
@@ -115,6 +119,11 @@ const CaptureImage: React.FC<CaptureImageProps> = ({
               Re-Capture
             </button>
           </div>
+          {isGenerating && (
+            <div className='text-center'>
+              <SyncLoader color='#36d7b7' />
+            </div>
+          )}
         </div>
       ) : (
         <div className='space-y-4'>
